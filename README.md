@@ -36,7 +36,7 @@
 ### 1. 安装依赖
 ```bash
 # 克隆项目
-git clone [your-repo-url]
+git clone git@github.com:x-rush/fortune.git
 cd indexoob
 
 # 安装依赖
@@ -212,7 +212,6 @@ npm run format
 ## 📞 技术支持
 
 如有问题或建议，请通过以下方式联系：
-- 📧 邮箱: [your-email@example.com]
 - 🐛 提交Issue: [GitHub Issues链接]
 
 ---
