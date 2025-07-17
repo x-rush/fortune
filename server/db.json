@@ -6,7 +6,11 @@
       "description": "基于AI的企业办公自动化解决方案，提升工作效率300%",
       "image": "https://images.unsplash.com/photo-1556155092-490a1ba16284?w=500",
       "category": "企业软件",
-      "features": ["AI智能助手", "流程自动化", "数据分析"],
+      "features": [
+        "AI智能助手",
+        "流程自动化",
+        "数据分析"
+      ],
       "link": "#",
       "createdAt": "2024-01-15"
     },
@@ -16,7 +20,11 @@
       "description": "全功能电商平台，支持多端同步，日处理订单10万+",
       "image": "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=500",
       "category": "移动应用",
-      "features": ["多端同步", "支付集成", "实时物流"],
+      "features": [
+        "多端同步",
+        "支付集成",
+        "实时物流"
+      ],
       "link": "#",
       "createdAt": "2024-01-20"
     },
@@ -26,7 +34,11 @@
       "description": "实时数据可视化，助力企业精准决策",
       "image": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=500",
       "category": "数据服务",
-      "features": ["实时分析", "可视化报表", "预测模型"],
+      "features": [
+        "实时分析",
+        "可视化报表",
+        "预测模型"
+      ],
       "link": "#",
       "createdAt": "2024-01-25"
     }
