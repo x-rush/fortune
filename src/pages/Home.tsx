@@ -4,7 +4,7 @@ import Particles from "react-tsparticles";
 import { loadFull } from "tsparticles";
 
 const Home = () => {
-  const particlesInit = async (main) => {
+  const particlesInit = async (main: any) => {
     await loadFull(main);
   };
 
