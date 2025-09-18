@@ -1,8 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, Suspense } from 'react';
 import { motion, useScroll, useTransform, Variants } from 'framer-motion';
-import { Box, Typography, Button, Container } from '@mui/material';
+import { Box, Typography, Button, Container, CircularProgress } from '@mui/material';
 import { PlayArrow, ArrowDownward } from '@mui/icons-material';
 import { Particle as IParticle, MousePosition } from '../types';
+import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
 
 const ParticleBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
