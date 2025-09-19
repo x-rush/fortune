@@ -4,6 +4,7 @@ import { Box, Typography, Button, Container, CircularProgress } from '@mui/mater
 import { PlayArrow, ArrowDownward } from '@mui/icons-material';
 import { Particle as IParticle, MousePosition } from '../types';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
+import { useTranslation } from 'react-i18next';
 
 const ParticleBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -138,6 +139,7 @@ const ParticleBackground = () => {
 
 
 const TechHero = () => {
+  const { t } = useTranslation();
   const { scrollYProgress } = useScroll();
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   
@@ -241,9 +243,7 @@ const TechHero = () => {
                       },
                     }}
                   >
-                    数字化未来
-                    <br />
-                    从这里开始
+                    {t('hero.title')}
                   </Typography>
                 </motion.div>
 
@@ -258,9 +258,7 @@ const TechHero = () => {
                       lineHeight: 1.6,
                     }}
                   >
-                    我们专注于提供前沿的数字化解决方案，
-                    用创新技术驱动企业转型，
-                    让未来触手可及。
+                    {t('hero.subtitle')}
                   </Typography>
                 </motion.div>
 
@@ -285,7 +283,7 @@ const TechHero = () => {
                       },
                     }}
                   >
-                    探索服务
+                    {t('hero.cta1')}
                   </Button>
                   <Button
                     variant="outlined"
@@ -304,7 +302,7 @@ const TechHero = () => {
                       },
                     }}
                   >
-                    查看案例
+                    {t('hero.cta2')}
                   </Button>
                 </motion.div>
               </motion.div>

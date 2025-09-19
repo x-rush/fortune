@@ -1,0 +1,137 @@
+{
+  "navigation": {
+    "logo": "indexoob",
+    "home": "首页",
+    "products": "产品",
+    "about": "关于我们",
+    "contact": "联系我们",
+    "admin": "管理后台"
+  },
+  "hero": {
+    "title": "科技创新，引领未来",
+    "subtitle": "我们致力于用前沿技术解决复杂问题，为企业数字化转型提供全方位解决方案",
+    "cta1": "探索产品",
+    "cta2": "了解更多"
+  },
+  "features": {
+    "title": "核心优势",
+    "subtitle": "为什么选择我们",
+    "items": [
+      {
+        "title": "技术创新",
+        "description": "持续投入研发，掌握核心技术，保持行业领先地位"
+      },
+      {
+        "title": "专业团队",
+        "description": "汇聚顶尖人才，具备丰富项目经验，确保交付质量"
+      },
+      {
+        "title": "客户至上",
+        "description": "深入理解客户需求，提供个性化解决方案和贴心服务"
+      }
+    ]
+  },
+  "services": {
+    "title": "我们的服务",
+    "subtitle": "专业的技术解决方案",
+    "items": [
+      {
+        "title": "Web应用开发",
+        "description": "现代化的响应式网站应用，提供最佳用户体验"
+      },
+      {
+        "title": "移动应用开发",
+        "description": "iOS和Android原生应用，跨平台解决方案"
+      },
+      {
+        "title": "小程序开发",
+        "description": "微信小程序，支付宝小程序，快速触达用户"
+      }
+    ]
+  },
+  "about": {
+    "title": "关于 indexoob",
+    "subtitle": "您的技术合作伙伴",
+    "mission": "我们的使命",
+    "missionText": "通过技术创新推动商业进步，让科技赋能每一个企业",
+    "vision": "我们的愿景",
+    "visionText": "成为全球领先的技术解决方案提供商，助力企业实现数字化转型",
+    "values": "核心价值观",
+    "valuesList": [
+      "创新驱动 · 追求卓越",
+      "诚信为本 · 合作共赢",
+      "专业专注 · 精益求精"
+    ],
+    "description": "indexoob 致力于提供高质量的Web、App、小程序和快应用开发服务。我们的使命是帮助客户突破技术桎梏，实现业务的超越与极限。我们相信，代码是创造未来的语言，而我们，是您最值得信赖的翻译官。"
+  },
+  "products": {
+    "title": "产品展示",
+    "subtitle": "探索我们的创新产品矩阵",
+    "empty": "暂无产品，请在管理后台添加",
+    "viewDetails": "查看详情",
+    "goToAdmin": "进入管理后台",
+    "category": "分类",
+    "price": "价格",
+    "learnMore": "了解更多",
+    "loading": "加载产品中...",
+    "error": "获取产品失败"
+  },
+  "contact": {
+    "title": "联系我们",
+    "subtitle": "期待与您的合作",
+    "form": {
+      "name": "姓名",
+      "email": "邮箱",
+      "message": "留言",
+      "submit": "发送消息",
+      "sending": "发送中...",
+      "success": "发送成功！",
+      "error": "发送失败，请稍后重试"
+    },
+    "info": {
+      "address": "地址",
+      "phone": "电话",
+      "email": "邮箱"
+    }
+  },
+  "admin": {
+    "title": "产品管理后台",
+    "addProduct": "添加新产品",
+    "editProduct": "编辑产品",
+    "deleteProduct": "删除产品",
+    "save": "保存",
+    "cancel": "取消",
+    "confirm": "确认",
+    "confirmDelete": "确定要删除这个产品吗？",
+    "form": {
+      "name": "产品名称",
+      "description": "产品描述",
+      "price": "产品价格",
+      "image": "产品图片URL",
+      "category": "产品分类",
+      "link": "产品链接",
+      "features": "产品特性"
+    },
+    "messages": {
+      "loadError": "获取产品列表失败",
+      "saveError": "保存产品失败",
+      "deleteError": "删除产品失败"
+    }
+  },
+  "common": {
+    "loading": "加载中...",
+    "error": "出错了",
+    "retry": "重试",
+    "back": "返回",
+    "next": "下一个",
+    "previous": "上一个",
+    "close": "关闭",
+    "language": "语言",
+    "noData": "暂无数据",
+    "submit": "提交",
+    "cancel": "取消",
+    "confirm": "确认",
+    "delete": "删除",
+    "edit": "编辑"
+  }
+}

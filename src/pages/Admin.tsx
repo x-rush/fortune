@@ -14,14 +14,16 @@ import {
   IconButton,
   Alert
 } from '@mui/material';
-import { Edit, Delete, Add } from '@mui/icons-material';
+import { Edit, Delete, Add, Logout } from '@mui/icons-material';
 import { productAPI } from '../services/api';
 import { Product } from '../types';
+import { useNavigate } from 'react-router-dom';
 
 const Admin = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [open, setOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -118,6 +120,11 @@ const Admin = () => {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('adminToken');
+    navigate('/admin-login');
+  };
+
   const addFeature = () => {
     if (featureInput.trim()) {
       setFormData({
@@ -139,10 +146,27 @@ const Admin = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom>
-        产品管理后台
-      </Typography>
-      
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h4">
+          产品管理后台
+        </Typography>
+        <Button
+          variant="outlined"
+          startIcon={<Logout />}
+          onClick={handleLogout}
+          sx={{
+            color: '#ef4444',
+            borderColor: '#ef4444',
+            '&:hover': {
+              borderColor: '#dc2626',
+              backgroundColor: 'rgba(239, 68, 68, 0.1)'
+            }
+          }}
+        >
+          退出登录
+        </Button>
+      </Box>
+
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}

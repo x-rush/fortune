@@ -3,9 +3,14 @@ echo "🚀 启动开发环境..."
 
 # 启动后端服务器
 echo "📡 启动后端服务器..."
+if [ ! -d "server" ]; then
+  echo "❌ server目录不存在，请在正确的位置运行此脚本"
+  exit 1
+fi
 cd server
 npm install
-npm start &
+npm run setup-auth
+node index.js &
 BACKEND_PID=$!
 
 # 等待后端启动
@@ -20,7 +25,8 @@ FRONTEND_PID=$!
 echo "✅ 开发环境已启动！"
 echo "📱 前端: http://localhost:3000"
 echo "🔧 后端: http://localhost:3001"
-echo "🎛️  管理后台: http://localhost:3000/admin"
+echo "🎛️  管理后台: http://localhost:3000/admin-access"
+echo "🔑 管理员账号: admin / indexoob@2025"
 echo ""
 echo "按 Ctrl+C 停止所有服务"
 

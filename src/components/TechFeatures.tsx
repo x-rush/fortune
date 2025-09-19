@@ -3,36 +3,33 @@ import { motion, useInView, useAnimation, Variants } from 'framer-motion';
 import { Box, Typography, Container } from '@mui/material';
 import { Code, Speed, Security, Analytics } from '@mui/icons-material';
 import gsap from 'gsap';
+import { useTranslation } from 'react-i18next';
+import GlassCard from './GlassCard';
 
 const TechFeatures = () => {
+  const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
   const controls = useAnimation();
 
   const features = [
     {
-      icon: <Code sx={{ fontSize: 60, color: '#00bfff' }} />,
-      title: '前沿技术',
-      description: '采用最新技术栈，确保系统性能和可扩展性',
-      color: '#00bfff'
+      icon: <Code sx={{ fontSize: 60, color: '#3b82f6' }} />,
+      title: t('features.items.0.title'),
+      description: t('features.items.0.description'),
+      color: '#3b82f6'
     },
     {
-      icon: <Speed sx={{ fontSize: 60, color: '#00ff88' }} />,
-      title: '极速响应',
-      description: '毫秒级响应速度，提供流畅的用户体验',
-      color: '#00ff88'
+      icon: <Speed sx={{ fontSize: 60, color: '#06b6d4' }} />,
+      title: t('features.items.1.title'),
+      description: t('features.items.1.description'),
+      color: '#06b6d4'
     },
     {
-      icon: <Security sx={{ fontSize: 60, color: '#ff6b6b' }} />,
-      title: '企业级安全',
-      description: '多层安全防护，保障数据安全和隐私',
-      color: '#ff6b6b'
-    },
-    {
-      icon: <Analytics sx={{ fontSize: 60, color: '#ffd93d' }} />,
-      title: '智能分析',
-      description: 'AI驱动的数据分析，助力精准决策',
-      color: '#ffd93d'
+      icon: <Security sx={{ fontSize: 60, color: '#8b5cf6' }} />,
+      title: t('features.items.2.title'),
+      description: t('features.items.2.description'),
+      color: '#8b5cf6'
     }
   ];
 
@@ -75,10 +72,10 @@ const TechFeatures = () => {
   return (
     <Box
       sx={{
-        py: 10,
-        background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%)',
+        py: { xs: 8, md: 12 },
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        background: 'linear-gradient(180deg, transparent 0%, rgba(59, 130, 246, 0.05) 50%, transparent 100%)',
       }}
       id="features"
     >
@@ -89,30 +86,35 @@ const TechFeatures = () => {
           transition={{ duration: 0.8 }}
         >
           <Typography
-            variant="h3"
+            variant="h2"
             align="center"
             sx={{
-              fontWeight: 'bold',
-              background: 'linear-gradient(45deg, #00bfff, #1e90ff)',
+              fontSize: { xs: '2.5rem', md: '3.5rem' },
+              fontWeight: 800,
+              background: 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 50%, #8b5cf6 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
-              mb: 2
+              mb: 3,
+              textShadow: '0 0 30px rgba(59, 130, 246, 0.3)',
             }}
           >
-            核心优势
+            {t('features.title')}
           </Typography>
-          
+
           <Typography
             variant="h6"
             align="center"
             sx={{
-              color: '#a0a0a0',
+              fontSize: { xs: '1.1rem', md: '1.3rem' },
+              color: '#94a3b8',
               mb: 8,
-              maxWidth: 600,
-              mx: 'auto'
+              maxWidth: 700,
+              mx: 'auto',
+              lineHeight: 1.6,
+              opacity: 0.9,
             }}
           >
-            用技术驱动创新，用创新引领未来
+            {t('features.subtitle')}
           </Typography>
         </motion.div>
 
@@ -126,43 +128,34 @@ const TechFeatures = () => {
             display: 'grid',
             gridTemplateColumns: {
               xs: '1fr',
-              sm: 'repeat(2, 1fr)',
-              md: 'repeat(2, 1fr)',
-              lg: 'repeat(4, 1fr)'
+              md: 'repeat(3, 1fr)',
             },
-            gap: { xs: 3, sm: 4, md: 6 },
+            gap: { xs: 4, md: 6 },
             justifyContent: 'center',
-            justifyItems: 'center',
-            maxWidth: { lg: '1200px', xl: '1400px' },
-            margin: '0 auto'
+            maxWidth: '1200px',
+            mx: 'auto',
           }}
         >
           {features.map((feature, index) => (
-            <motion.div
+            <GlassCard
               key={index}
               className="feature-card"
-              variants={itemVariants}
-              whileHover={{ 
-                scale: 1.05,
-                boxShadow: `0 20px 40px ${feature.color}20`
-              }}
-              style={{
-                height: '100%',
-                padding: '40px 30px',
-                background: 'rgba(255, 255, 255, 0.05)',
-                border: `1px solid ${feature.color}20`,
-                borderRadius: '20px',
+              sx={{
+                p: { xs: 4, md: 6 },
                 textAlign: 'center',
-                backdropFilter: 'blur(10px)',
-                transition: 'all 0.3s ease',
-                position: 'relative',
-                overflow: 'hidden',
-                width: '100%',
-                maxWidth: '340px',
-                minHeight: '320px',
+                minHeight: '350px',
                 display: 'flex',
                 flexDirection: 'column',
-                justifyContent: 'center'
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'relative',
+                overflow: 'hidden',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                '&:hover': {
+                  borderColor: `${feature.color}40`,
+                  transform: 'translateY(-8px)',
+                  boxShadow: `0 20px 40px ${feature.color}20`,
+                },
               }}
             >
               <Box
@@ -170,40 +163,55 @@ const TechFeatures = () => {
                   position: 'absolute',
                   top: 0,
                   left: 0,
-                  width: '100%',
-                  height: '100%',
-                  background: `linear-gradient(45deg, ${feature.color}05, transparent)`,
+                  right: 0,
+                  bottom: 0,
+                  background: `radial-gradient(circle at center, ${feature.color}08 0%, transparent 70%)`,
                   opacity: 0,
                   transition: 'opacity 0.3s ease',
-                  ':hover': {
-                    opacity: 1
-                  }
                 }}
+                className="feature-glow"
               />
-              
-              <motion.div
-                whileHover={{ rotate: 360 }}
-                transition={{ duration: 0.6 }}
+
+              <Box
+                component={motion.div}
+                whileHover={{
+                  scale: 1.1,
+                  rotate: 5,
+                }}
+                transition={{ duration: 0.3 }}
+                sx={{
+                  mb: 4,
+                  p: 3,
+                  borderRadius: '50%',
+                  background: `linear-gradient(135deg, ${feature.color}20, ${feature.color}05)`,
+                  backdropFilter: 'blur(10px)',
+                  border: `1px solid ${feature.color}30`,
+                  display: 'inline-flex',
+                }}
               >
                 {feature.icon}
-              </motion.div>
-              
+              </Box>
+
               <Typography
-                variant="h5"
+                variant="h4"
                 sx={{
-                  fontWeight: 'bold',
-                  color: 'white',
-                  mt: 3,
-                  mb: 2
+                  fontWeight: 700,
+                  color: '#f1f5f9',
+                  mb: 3,
+                  fontSize: { xs: '1.5rem', md: '1.8rem' },
                 }}
               >
                 {feature.title}
               </Typography>
-              
+
               <Typography
+                variant="body1"
                 sx={{
-                  color: '#a0a0a0',
-                  lineHeight: 1.6
+                  color: '#94a3b8',
+                  lineHeight: 1.7,
+                  fontSize: { xs: '1rem', md: '1.1rem' },
+                  maxWidth: '280px',
+                  mx: 'auto',
                 }}
               >
                 {feature.description}
@@ -212,25 +220,25 @@ const TechFeatures = () => {
               <motion.div
                 style={{
                   position: 'absolute',
-                  bottom: 10,
-                  right: 10,
-                  width: 60,
-                  height: 60,
-                  border: `1px solid ${feature.color}`,
+                  bottom: '20px',
+                  right: '20px',
+                  width: '40px',
+                  height: '40px',
                   borderRadius: '50%',
-                  background: 'transparent'
+                  background: `linear-gradient(135deg, ${feature.color}, ${feature.color}80)`,
+                  opacity: 0.1,
                 }}
                 animate={{
-                  scale: [1, 1.2, 1],
-                  opacity: [0.3, 0.7, 0.3]
+                  scale: [1, 1.3, 1],
+                  opacity: [0.1, 0.3, 0.1],
                 }}
                 transition={{
-                  duration: 2,
+                  duration: 3,
                   repeat: Infinity,
-                  ease: "easeInOut"
+                  ease: "easeInOut",
                 }}
               />
-            </motion.div>
+            </GlassCard>
           ))}
         </Box>
         </motion.div>
@@ -241,14 +249,46 @@ const TechFeatures = () => {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: 600,
-            height: 600,
-            border: '1px solid rgba(0,191,255,0.1)',
+            width: { xs: '400px', md: '600px' },
+            height: { xs: '400px', md: '600px' },
+            border: '1px solid rgba(59, 130, 246, 0.08)',
             borderRadius: '50%',
-            animation: 'pulse 4s ease-in-out infinite',
+            animation: 'pulse 6s ease-in-out infinite',
+            pointerEvents: 'none',
             '@keyframes pulse': {
-              '0%, 100%': { transform: 'translate(-50%, -50%) scale(1)', opacity: 0.3 },
-              '50%': { transform: 'translate(-50%, -50%) scale(1.1)', opacity: 0.1 }
+              '0%, 100%': {
+                transform: 'translate(-50%, -50%) scale(1)',
+                opacity: 0.1
+              },
+              '50%': {
+                transform: 'translate(-50%, -50%) scale(1.15)',
+                opacity: 0.05
+              }
+            }
+          }}
+        />
+
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: { xs: '300px', md: '450px' },
+            height: { xs: '300px', md: '450px' },
+            border: '1px solid rgba(6, 182, 212, 0.06)',
+            borderRadius: '50%',
+            animation: 'pulse-reverse 8s ease-in-out infinite',
+            pointerEvents: 'none',
+            '@keyframes pulse-reverse': {
+              '0%, 100%': {
+                transform: 'translate(-50%, -50%) scale(1)',
+                opacity: 0.08
+              },
+              '50%': {
+                transform: 'translate(-50%, -50%) scale(1.2)',
+                opacity: 0.03
+              }
             }
           }}
         />

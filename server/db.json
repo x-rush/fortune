@@ -42,5 +42,11 @@
       "link": "#",
       "createdAt": "2024-01-25"
     }
-  ]
+  ],
+  "auth": {
+    "admin": {
+      "username": "admin",
+      "password": "$2b$10$KqrpV4G9ej1j5PVpbGflUO70F2IoQUXYpLTBwQqL1fUpUrpVzICmC"
+    }
+  }
 }
