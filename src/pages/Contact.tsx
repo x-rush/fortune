@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Container, Typography, Box, Grid, TextField, Button } from '@mui/material';
+import { Container, Typography, Box, Grid, TextField, Button, Alert } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import GlassCard from '../components/GlassCard';
 import GlassButton from '../components/GlassButton';
 import { Email, Phone, LocationOn, Send } from '@mui/icons-material';
+import { contactAPI } from '../services/api';
 
 const Contact = () => {
   const { t } = useTranslation();
@@ -14,18 +15,33 @@ const Contact = () => {
     message: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [submitMessage, setSubmitMessage] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitStatus('idle');
 
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setIsSubmitting(false);
+    try {
+      const response = await contactAPI.submit(formData);
 
-    // Reset form
-    setFormData({ name: '', email: '', message: '' });
-    alert(t('contact.form.success'));
+      if (response.success) {
+        setSubmitStatus('success');
+        setSubmitMessage(t('contact.form.success'));
+        // Reset form
+        setFormData({ name: '', email: '', message: '' });
+      } else {
+        setSubmitStatus('error');
+        setSubmitMessage(response.message || 'Submission failed');
+      }
+    } catch (error) {
+      console.error('Contact form submission error:', error);
+      setSubmitStatus('error');
+      setSubmitMessage('Failed to submit form. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -284,6 +300,18 @@ const Contact = () => {
                     }}
                   />
 
+                  {/* Status Message */}
+                  {submitStatus === 'success' && (
+                    <Alert severity="success" sx={{ mt: 2 }}>
+                      {submitMessage}
+                    </Alert>
+                  )}
+                  {submitStatus === 'error' && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                      {submitMessage}
+                    </Alert>
+                  )}
+
                   <GlassButton
                     type="submit"
                     variant="contained"
@@ -292,7 +320,7 @@ const Contact = () => {
                     sx={{
                       py: 1.5,
                       fontWeight: 600,
-                      mt: 2,
+                      mt: submitStatus !== 'idle' ? 2 : 2,
                     }}
                   >
                     {isSubmitting ? t('contact.form.sending') : t('contact.form.submit')}

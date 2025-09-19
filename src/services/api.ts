@@ -56,7 +56,59 @@ export const productAPI = {
   },
 };
 
-// 认证相关API
+// 联系表单相关API
+export const contactAPI = {
+  // 提交联系表单
+  submit: async (formData: { name: string; email: string; message: string }) => {
+    const response = await api.post('/api/contact', formData);
+    return response.data;
+  }
+};
+
+// 管理员联系消息API
+export const contactAdminAPI = {
+  // 获取所有联系消息（需要认证）
+  getAll: async (): Promise<any[]> => {
+    const token = localStorage.getItem('adminToken');
+    const response = await api.get('/api/admin/contact-messages', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    return response.data;
+  },
+
+  // 标记消息为已读
+  markAsRead: async (id: number): Promise<void> => {
+    const token = localStorage.getItem('adminToken');
+    await api.put(`/api/admin/contact-messages/${id}/read`, {}, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+  },
+
+  // 删除消息
+  delete: async (id: number): Promise<void> => {
+    const token = localStorage.getItem('adminToken');
+    await api.delete(`/api/admin/contact-messages/${id}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+  },
+
+  // 清空所有消息
+  clearAll: async (): Promise<void> => {
+    const token = localStorage.getItem('adminToken');
+    await api.delete('/api/admin/contact-messages', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+  }
+};
+
 export const authAPI = {
   // 登录
   login: async (username: string, password: string) => {
@@ -73,7 +125,7 @@ export const authAPI = {
         }
       });
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Token verification failed:', error);
       // If the response is 403, it means the token is invalid or user is not admin
       if (error.response && error.response.status === 403) {

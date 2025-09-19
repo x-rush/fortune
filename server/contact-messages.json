@@ -1,0 +1,12 @@
+{
+  "contactMessages": [
+    {
+      "id": 1758279377416,
+      "name": "test",
+      "email": "test@example.com",
+      "message": "test message",
+      "createdAt": "2025-09-19T10:56:17.416Z",
+      "read": true
+    }
+  ]
+}

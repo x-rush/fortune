@@ -17,6 +17,20 @@ const router = jsonServer.router('db.json');
 const middlewares = jsonServer.defaults();
 const db = JSON.parse(fs.readFileSync('db.json', 'UTF-8'));
 
+// 联系消息数据库
+let contactDb;
+try {
+  contactDb = JSON.parse(fs.readFileSync('contact-messages.json', 'UTF-8'));
+} catch (error) {
+  contactDb = { contactMessages: [] };
+  fs.writeFileSync('contact-messages.json', JSON.stringify(contactDb, null, 2));
+}
+
+// 保存联系消息数据库
+const saveContactDb = () => {
+  fs.writeFileSync('contact-messages.json', JSON.stringify(contactDb, null, 2));
+};
+
 app.use('/api', middlewares);
 
 const authenticateToken = (req, res, next) => {
@@ -70,6 +84,102 @@ app.post('/api/verify-auth', authenticateToken, (req, res) => {
 // 公开访问的产品数据
 app.get('/api/products', (req, res) => {
   res.json(db.products);
+});
+
+// 联系表单提交（公开访问）
+app.post('/api/contact', (req, res) => {
+  try {
+    const { name, email, message } = req.body;
+
+    if (!name || !email || !message) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const newMessage = {
+      id: Date.now(),
+      name,
+      email,
+      message,
+      createdAt: new Date().toISOString(),
+      read: false
+    };
+
+    contactDb.contactMessages = contactDb.contactMessages || [];
+    contactDb.contactMessages.unshift(newMessage);
+
+    // 保存到联系消息数据库文件
+    saveContactDb();
+
+    res.status(201).json({
+      success: true,
+      message: 'Contact form submitted successfully',
+      data: newMessage
+    });
+  } catch (error) {
+    console.error('Contact form submission error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// 联系消息管理API（需要认证）
+app.get('/api/admin/contact-messages', authenticateToken, (req, res) => {
+  try {
+    const messages = contactDb.contactMessages || [];
+    res.json(messages);
+  } catch (error) {
+    console.error('Error fetching contact messages:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.put('/api/admin/contact-messages/:id/read', authenticateToken, (req, res) => {
+  try {
+    const messageId = parseInt(req.params.id);
+    const message = contactDb.contactMessages.find(msg => msg.id === messageId);
+
+    if (!message) {
+      return res.status(404).json({ error: 'Message not found' });
+    }
+
+    message.read = true;
+    saveContactDb();
+
+    res.json({ success: true, message: 'Message marked as read' });
+  } catch (error) {
+    console.error('Error marking message as read:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.delete('/api/admin/contact-messages/:id', authenticateToken, (req, res) => {
+  try {
+    const messageId = parseInt(req.params.id);
+    const messageIndex = contactDb.contactMessages.findIndex(msg => msg.id === messageId);
+
+    if (messageIndex === -1) {
+      return res.status(404).json({ error: 'Message not found' });
+    }
+
+    contactDb.contactMessages.splice(messageIndex, 1);
+    saveContactDb();
+
+    res.json({ success: true, message: 'Message deleted' });
+  } catch (error) {
+    console.error('Error deleting message:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.delete('/api/admin/contact-messages', authenticateToken, (req, res) => {
+  try {
+    contactDb.contactMessages = [];
+    saveContactDb();
+
+    res.json({ success: true, message: 'All messages cleared' });
+  } catch (error) {
+    console.error('Error clearing messages:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 // 需要认证的API
