@@ -2,14 +2,22 @@ const bcrypt = require('bcrypt');
 const fs = require('fs');
 
 async function setupAuth() {
-  const password = 'indexoob@2025';
+  const username = process.env.ADMIN_USERNAME;
+  const password = process.env.ADMIN_PASSWORD;
+
+  // 验证必要的环境变量
+  if (!username || !password) {
+    console.error('Missing required environment variables: ADMIN_USERNAME, ADMIN_PASSWORD');
+    console.error('Please set these variables in your .env file');
+    process.exit(1);
+  }
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const db = JSON.parse(fs.readFileSync('db.json', 'UTF-8'));
 
   db.auth = {
     admin: {
-      username: 'admin',
+      username: username,
       password: hashedPassword
     }
   };
@@ -24,10 +32,11 @@ async function setupAuth() {
   }
 
   console.log('✅ Auth setup completed');
-  console.log('🔑 Username: admin');
-  console.log('🔑 Password: indexoob@2025');
+  console.log('🔑 Username:', username);
+  console.log('🔑 Password:', password);
   console.log('🔐 Password hashed and stored securely');
   console.log('📁 Database files: db.json, contact-messages.json');
+  console.log('📝 Admin credentials loaded from environment variables');
 }
 
 setupAuth().catch(console.error);

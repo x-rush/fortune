@@ -101,6 +101,14 @@ src/
 - **Production**: Update `VITE_API_URL` to production endpoint
 - **Theme Colors**: Modify in `src/theme.ts` for consistent branding
 
+### Admin Authentication
+- **Development**: Copy `.env.example` to `.env` and set custom credentials
+- **Environment Variables**:
+  - `ADMIN_USERNAME`: Admin username (default: admin)
+  - `ADMIN_PASSWORD`: Admin password (default: indexoob@2025)
+  - `JWT_SECRET`: JWT secret key for authentication
+- **Security**: Always use strong passwords in production environments
+
 ### Build Configuration
 - **Output Directory**: `build/` (configured in vite.config.ts)
 - **Path Aliases**: `@/` maps to `src/` for clean imports

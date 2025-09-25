@@ -8,14 +8,65 @@ const fs = require('fs');
 
 const app = express();
 const port = process.env.PORT || 3001;
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-here';
+
+// 从环境变量获取配置
+const configuredUsername = process.env.ADMIN_USERNAME;
+const configuredPassword = process.env.ADMIN_PASSWORD;
+const JWT_SECRET = process.env.JWT_SECRET;
+
+// 验证必要的环境变量
+if (!configuredUsername || !configuredPassword || !JWT_SECRET) {
+  console.error('Missing required environment variables: ADMIN_USERNAME, ADMIN_PASSWORD, JWT_SECRET');
+  process.exit(1);
+}
 
 app.use(cors());
 app.use(express.json());
 
 const router = jsonServer.router('db.json');
 const middlewares = jsonServer.defaults();
-const db = JSON.parse(fs.readFileSync('db.json', 'UTF-8'));
+let db;
+
+try {
+  db = JSON.parse(fs.readFileSync('db.json', 'UTF-8'));
+} catch (error) {
+  // 如果数据库文件不存在，创建默认数据库
+  db = {
+    products: [
+      {
+        id: 1,
+        name: "智能办公系统",
+        description: "基于AI的企业办公自动化解决方案，提升工作效率300%",
+        image: "https://images.unsplash.com/photo-1556155092-490a1ba16284?w=500",
+        category: "企业软件",
+        features: ["AI智能助手", "流程自动化", "数据分析"],
+        link: "#",
+        createdAt: "2024-01-15"
+      },
+      {
+        id: 2,
+        name: "移动商城App",
+        description: "全功能电商平台，支持多端同步，日处理订单10万+",
+        image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=500",
+        category: "移动应用",
+        features: ["多端同步", "支付集成", "实时物流"],
+        link: "#",
+        createdAt: "2024-01-20"
+      },
+      {
+        id: 3,
+        name: "企业数据分析平台",
+        description: "实时数据可视化，助力企业精准决策",
+        image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=500",
+        category: "数据服务",
+        features: ["实时分析", "可视化报表", "预测模型"],
+        link: "#",
+        createdAt: "2024-01-25"
+      }
+    ]
+  };
+  fs.writeFileSync('db.json', JSON.stringify(db, null, 2));
+}
 
 // 联系消息数据库
 let contactDb;
@@ -57,23 +108,35 @@ app.post('/api/login', async (req, res) => {
     return res.status(400).json({ error: 'Username and password required' });
   }
 
-  if (username === db.auth.admin.username) {
-    const isValid = await bcrypt.compare(password, db.auth.admin.password);
-    if (isValid) {
-      const token = jwt.sign(
-        { username, role: 'admin' },
-        JWT_SECRET,
-        { expiresIn: '24h' }
-      );
-      return res.json({ token, username, role: 'admin' });
+  // 如果数据库中有认证信息，使用数据库验证
+  if (db.auth && db.auth.admin) {
+    if (username === db.auth.admin.username) {
+      const isValid = await bcrypt.compare(password, db.auth.admin.password);
+      if (isValid) {
+        const token = jwt.sign(
+          { username, role: 'admin' },
+          JWT_SECRET,
+          { expiresIn: '24h' }
+        );
+        return res.json({ token, username, role: 'admin' });
+      }
     }
+  }
+
+  // 回退到环境变量验证
+  if (username === configuredUsername && password === configuredPassword) {
+    const token = jwt.sign(
+      { username, role: 'admin' },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+    return res.json({ token, username, role: 'admin' });
   }
 
   res.status(401).json({ error: 'Invalid credentials' });
 });
 
 app.post('/api/verify-auth', authenticateToken, (req, res) => {
-  // Double-check that the user is actually an admin
   if (req.user && req.user.role === 'admin') {
     res.json({ valid: true, user: req.user });
   } else {
@@ -107,7 +170,6 @@ app.post('/api/contact', (req, res) => {
     contactDb.contactMessages = contactDb.contactMessages || [];
     contactDb.contactMessages.unshift(newMessage);
 
-    // 保存到联系消息数据库文件
     saveContactDb();
 
     res.status(201).json({
@@ -196,4 +258,6 @@ app.listen(port, () => {
   console.log(`📡 API: http://localhost:${port}/api`);
   console.log(`🎯 Login: http://localhost:${port}/api/login`);
   console.log(`📱 Frontend: http://localhost:3000`);
+  console.log(`🔑 Admin Username: ${configuredUsername}`);
+  console.log(`🔐 Using environment variables for authentication`);
 });

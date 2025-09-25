@@ -26,7 +26,7 @@ echo "✅ 开发环境已启动！"
 echo "📱 前端: http://localhost:3000"
 echo "🔧 后端: http://localhost:3001"
 echo "🎛️  管理后台: http://localhost:3000/admin-access"
-echo "🔑 管理员账号: admin / indexoob@2025"
+echo "🔑 管理员账号: 请查看 .env 文件中的 ADMIN_USERNAME 和 ADMIN_PASSWORD"
 echo ""
 echo "按 Ctrl+C 停止所有服务"
 
