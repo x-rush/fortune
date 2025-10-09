@@ -1,152 +1,26 @@
 import React, { useEffect, useRef, useState, Suspense } from 'react';
-import { motion, useScroll, useTransform, Variants } from 'framer-motion';
-import { Box, Typography, Button, Container, CircularProgress } from '@mui/material';
-import { PlayArrow, ArrowDownward } from '@mui/icons-material';
+import { motion, useScroll, useTransform, Variants, AnimatePresence } from 'framer-motion';
+import { Box, Typography, Button, Container, CircularProgress, Tab, Tabs, Paper } from '@mui/material';
+import { PlayArrow, ArrowDownward, Code, DeveloperMode, Speed } from '@mui/icons-material';
 import { Particle as IParticle, MousePosition } from '../types';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
 import { useTranslation } from 'react-i18next';
+import Enhanced3DScene from './hero/Enhanced3DScene';
+import TechStackMatrix from './hero/TechStackMatrix';
+import LiveCodeDemo from './hero/LiveCodeDemo';
 
-const ParticleBackground = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const mouseRef = useRef<MousePosition>({ x: 0, y: 0 });
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    
-    const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-
-    const particles: Particle[] = [];
-    const particleCount = 100;
-
-    class Particle implements IParticle {
-      x: number;
-      y: number;
-      size: number;
-      speedX: number;
-      speedY: number;
-      opacity: number;
-
-      constructor() {
-        this.x = canvas ? Math.random() * canvas.width : 0;
-        this.y = canvas ? Math.random() * canvas.height : 0;
-        this.size = Math.random() * 2 + 0.5;
-        this.speedX = Math.random() * 2 - 1;
-        this.speedY = Math.random() * 2 - 1;
-        this.opacity = Math.random() * 0.5 + 0.1;
-      }
-
-      update() {
-        this.x += this.speedX;
-        this.y += this.speedY;
-
-        if (!canvas) return;
-        if (this.x > canvas.width) this.x = 0;
-        if (this.x < 0) this.x = canvas.width;
-        if (this.y > canvas.height) this.y = 0;
-        if (this.y < 0) this.y = canvas.height;
-
-        const dx = mouseRef.current.x - this.x;
-        const dy = mouseRef.current.y - this.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        
-        if (distance < 100) {
-          this.opacity = Math.min(1, this.opacity + 0.02);
-        } else {
-          this.opacity = Math.max(0.1, this.opacity - 0.01);
-        }
-      }
-
-      draw(ctx: CanvasRenderingContext2D) {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(0, 191, 255, ${this.opacity})`;
-        ctx.fill();
-      }
-    }
-
-    for (let i = 0; i < particleCount; i++) {
-      particles.push(new Particle());
-    }
-
-    const handleMouseMove = (e: MouseEvent) => {
-      mouseRef.current.x = e.clientX;
-      mouseRef.current.y = e.clientY;
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      particles.forEach(particle => {
-        particle.update();
-        particle.draw(ctx);
-      });
-
-      // 绘制连接线
-      particles.forEach((particle, i) => {
-        particles.slice(i + 1).forEach(otherParticle => {
-          const dx = particle.x - otherParticle.x;
-          const dy = particle.y - otherParticle.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          
-          if (distance < 150) {
-            ctx.beginPath();
-            ctx.moveTo(particle.x, particle.y);
-            ctx.lineTo(otherParticle.x, otherParticle.y);
-            ctx.strokeStyle = `rgba(0, 191, 255, ${0.1 * (1 - distance / 150)})`;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
-          }
-        });
-      });
-
-      requestAnimationFrame(animate);
-    };
-
-    animate();
-
-    return () => {
-      window.removeEventListener('resize', resizeCanvas);
-      window.removeEventListener('mousemove', handleMouseMove);
-    };
-  }, []);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        zIndex: 1,
-      }}
-    />
-  );
-};
 
 
 const TechHero = () => {
   const { t } = useTranslation();
   const { scrollYProgress } = useScroll();
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  
+  const [activeTab, setActiveTab] = useState(0);
+  const [showMore, setShowMore] = useState(false);
+
   const y = useTransform(scrollYProgress, [0, 1], [0, 300]);
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.8]);
-
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -178,6 +52,12 @@ const TechHero = () => {
     },
   };
 
+  const tabs = [
+    { label: '技术栈', icon: <DeveloperMode />, component: <TechStackMatrix /> },
+    { label: '代码演示', icon: <Code />, component: <LiveCodeDemo /> },
+    { label: '性能指标', icon: <Speed />, component: <PerformanceMetrics /> },
+  ];
+
   return (
     <Box
       sx={{
@@ -185,13 +65,11 @@ const TechHero = () => {
         background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%)',
         position: 'relative',
         overflow: 'hidden',
-        display: 'flex',
-        alignItems: 'center',
       }}
       id="home"
     >
-      <ParticleBackground />
-      
+      <Enhanced3DScene mousePosition={mousePosition} />
+
       {/* 网格背景 */}
       <Box
         sx={{
@@ -209,6 +87,7 @@ const TechHero = () => {
         }}
       />
 
+      {/* 主要Hero内容 */}
       <motion.div
         style={{ y, opacity, scale }}
       >
@@ -216,148 +95,265 @@ const TechHero = () => {
           position: 'relative',
           zIndex: 3,
           width: '100%',
+          height: '100vh',
+          display: 'flex',
+          alignItems: 'center',
         }}>
           <Container maxWidth="lg">
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4, alignItems: 'center' }}>
-            <Box sx={{ flex: 1, maxWidth: { md: '60%' } }}>
-              <motion.div
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-              >
-                <motion.div variants={itemVariants}>
-                  <Typography
-                    variant="h1"
-                    sx={{
-                      fontSize: { xs: '3rem', md: '4.5rem' },
-                      fontWeight: 'bold',
-                      background: 'linear-gradient(45deg, #00bfff, #1e90ff, #00bfff)',
-                      backgroundSize: '200% 200%',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                      animation: 'gradient 3s ease infinite',
-                      '@keyframes gradient': {
-                        '0%': { backgroundPosition: '0% 50%' },
-                        '50%': { backgroundPosition: '100% 50%' },
-                        '100%': { backgroundPosition: '0% 50%' },
-                      },
-                    }}
-                  >
-                    {t('hero.title')}
-                  </Typography>
-                </motion.div>
-
-                <motion.div variants={itemVariants}>
-                  <Typography
-                    variant="h5"
-                    sx={{
-                      color: '#a0a0a0',
-                      mt: 3,
-                      mb: 4,
-                      maxWidth: 600,
-                      lineHeight: 1.6,
-                    }}
-                  >
-                    {t('hero.subtitle')}
-                  </Typography>
-                </motion.div>
-
-                <motion.div variants={itemVariants} style={{ display: 'flex', gap: 16 }}>
-                  <Button
-                    variant="contained"
-                    size="large"
-                    endIcon={<PlayArrow />}
-                    sx={{
-                      background: 'linear-gradient(45deg, #00bfff, #1e90ff)',
-                      color: 'white',
-                      px: 4,
-                      py: 1.5,
-                      borderRadius: 3,
-                      fontSize: '1.1rem',
-                      fontWeight: 'bold',
-                      boxShadow: '0 8px 32px rgba(0,191,255,0.3)',
-                      transition: 'all 0.3s ease',
-                      '&:hover': {
-                        transform: 'translateY(-2px)',
-                        boxShadow: '0 12px 40px rgba(0,191,255,0.4)',
-                      },
-                    }}
-                  >
-                    {t('hero.cta1')}
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    size="large"
-                    sx={{
-                      borderColor: '#00bfff',
-                      color: '#00bfff',
-                      px: 4,
-                      py: 1.5,
-                      borderRadius: 3,
-                      fontSize: '1.1rem',
-                      fontWeight: 'bold',
-                      '&:hover': {
-                        backgroundColor: 'rgba(0,191,255,0.1)',
-                        borderColor: '#00bfff',
-                      },
-                    }}
-                  >
-                    {t('hero.cta2')}
-                  </Button>
-                </motion.div>
-              </motion.div>
-            </Box>
-
-            <Box sx={{ flex: 1, maxWidth: { md: '40%' } }}>
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 1, delay: 0.5 }}
-                style={{ position: 'relative' }}
-              >
-                {/* 3D旋转立方体 */}
-                <Box
-                  sx={{
-                    width: 300,
-                    height: 300,
-                    position: 'relative',
-                    margin: '0 auto',
-                    transformStyle: 'preserve-3d',
-                    animation: 'rotate 20s linear infinite',
-                    '@keyframes rotate': {
-                      '0%': { transform: 'rotateX(0deg) rotateY(0deg)' },
-                      '100%': { transform: 'rotateX(360deg) rotateY(360deg)' },
-                    },
-                  }}
+            <Box sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', md: 'row' },
+              gap: { xs: 3, sm: 4, md: 6, lg: 8 },
+              alignItems: 'center',
+              py: { xs: 2, sm: 3, md: 4, lg: 6 },
+              minHeight: { xs: 'auto', md: '70vh' },
+            }}>
+              {/* 左侧内容 */}
+              <Box sx={{ flex: 1, maxWidth: { md: '55%' } }}>
+                <motion.div
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="visible"
                 >
-                  {[0, 1, 2, 3, 4, 5].map((i) => (
-                    <Box
-                      key={i}
+                  <motion.div variants={itemVariants}>
+                    <Typography
+                      variant="h1"
                       sx={{
-                        position: 'absolute',
-                        width: 200,
-                        height: 200,
-                        border: '2px solid rgba(0,191,255,0.3)',
-                        background: 'rgba(0,191,255,0.1)',
-                        backdropFilter: 'blur(10px)',
-                        transform: `
-                          ${i === 0 ? 'translateZ(100px)' : ''}
-                          ${i === 1 ? 'translateZ(-100px) rotateY(180deg)' : ''}
-                          ${i === 2 ? 'translateX(100px) rotateY(90deg)' : ''}
-                          ${i === 3 ? 'translateX(-100px) rotateY(-90deg)' : ''}
-                          ${i === 4 ? 'translateY(100px) rotateX(90deg)' : ''}
-                          ${i === 5 ? 'translateY(-100px) rotateX(-90deg)' : ''}
-                        `,
+                        fontSize: { xs: '2.2rem', sm: '2.8rem', md: '3.5rem', lg: '4rem' },
+                        fontWeight: 'bold',
+                        background: 'linear-gradient(45deg, #00bfff, #1e90ff, #00bfff, #4facfe)',
+                        backgroundSize: '300% 300%',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        animation: 'gradient 4s ease infinite',
+                        '@keyframes gradient': {
+                          '0%': { backgroundPosition: '0% 50%' },
+                          '50%': { backgroundPosition: '100% 50%' },
+                          '100%': { backgroundPosition: '0% 50%' },
+                        },
+                        textShadow: '0 0 30px rgba(0,191,255,0.5)',
+                        lineHeight: 1.2,
                       }}
-                    />
-                  ))}
-                </Box>
-              </motion.div>
+                    >
+                      {t('hero.title')}
+                    </Typography>
+                  </motion.div>
+
+                  <motion.div variants={itemVariants}>
+                    <Typography
+                      variant="h5"
+                      sx={{
+                        color: '#a0a0a0',
+                        mt: { xs: 2, sm: 3, md: 4 },
+                        mb: { xs: 3, sm: 4, md: 5 },
+                        maxWidth: { xs: '100%', sm: '500px', md: '600px' },
+                        lineHeight: 1.6,
+                        fontSize: { xs: '1rem', sm: '1.1rem', md: '1.3rem' },
+                      }}
+                    >
+                      {t('hero.subtitle')}
+                    </Typography>
+                  </motion.div>
+
+                  {/* 统计数据 */}
+                  <motion.div variants={itemVariants}>
+                    <Box sx={{
+                      display: 'grid',
+                      gridTemplateColumns: {
+                        xs: 'repeat(2, 1fr)',
+                        sm: 'repeat(4, 1fr)',
+                        md: 'repeat(2, 1fr)',
+                        lg: 'repeat(4, 1fr)'
+                      },
+                      gap: { xs: 2, sm: 3, md: 4 },
+                      mb: { xs: 3, sm: 4, md: 5 },
+                      width: '100%',
+                    }}>
+                      {[
+                        { label: '项目完成', value: '50+', suffix: '' },
+                        { label: '代码行数', value: '1M+', suffix: '' },
+                        { label: '团队规模', value: '15', suffix: '+' },
+                        { label: '客户满意度', value: '98', suffix: '%' },
+                      ].map((stat, index) => (
+                        <Box key={index} sx={{ textAlign: 'center' }}>
+                          <Typography
+                            variant="h3"
+                            sx={{
+                              color: '#00bfff',
+                              fontWeight: 'bold',
+                              mb: 0.5,
+                              fontSize: { xs: '1.5rem', sm: '1.8rem', md: '2rem' },
+                            }}
+                          >
+                            {stat.value}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              color: '#888',
+                              fontSize: { xs: '0.8rem', sm: '0.9rem', md: '1rem' },
+                            }}
+                          >
+                            {stat.label}
+                          </Typography>
+                        </Box>
+                      ))}
+                    </Box>
+                  </motion.div>
+
+                  <motion.div variants={itemVariants} style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                    <Button
+                      variant="contained"
+                      size="large"
+                      endIcon={<PlayArrow />}
+                      onClick={() => setShowMore(!showMore)}
+                      sx={{
+                        background: 'linear-gradient(45deg, #00bfff, #1e90ff)',
+                        color: 'white',
+                        px: { xs: 2, sm: 3, md: 4 },
+                        py: { xs: 0.8, sm: 1, md: 1.5 },
+                        borderRadius: 3,
+                        fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem' },
+                        fontWeight: 'bold',
+                        boxShadow: '0 8px 32px rgba(0,191,255,0.3)',
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 12px 40px rgba(0,191,255,0.4)',
+                        },
+                      }}
+                    >
+                      {showMore ? '收起展示' : t('hero.cta1')}
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      size="large"
+                      sx={{
+                        borderColor: '#00bfff',
+                        color: '#00bfff',
+                        px: { xs: 2, sm: 3, md: 4 },
+                        py: { xs: 0.8, sm: 1, md: 1.5 },
+                        borderRadius: 3,
+                        fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem' },
+                        fontWeight: 'bold',
+                        '&:hover': {
+                          backgroundColor: 'rgba(0,191,255,0.1)',
+                          borderColor: '#00bfff',
+                        },
+                      }}
+                    >
+                      {t('hero.cta2')}
+                    </Button>
+                  </motion.div>
+                </motion.div>
+              </Box>
+
+              {/* 右侧动态内容 */}
+              <Box sx={{
+                flex: 1,
+                maxWidth: { xs: '100%', sm: '80%', md: '45%' },
+                mt: { xs: 4, md: 0 },
+              }}>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 1, delay: 0.5 }}
+                >
+                  <FloatingTechIcons />
+                </motion.div>
+              </Box>
             </Box>
-          </Box>
-        </Container>
+          </Container>
         </Box>
       </motion.div>
+
+      {/* 可展开的技术展示区域 */}
+      <AnimatePresence>
+        {showMore && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.5 }}
+            style={{ position: 'relative', zIndex: 4 }}
+          >
+            <Box sx={{
+              background: 'rgba(0,0,0,0.3)',
+              backdropFilter: 'blur(10px)',
+              py: 6,
+            }}>
+              <Container maxWidth="lg">
+                <Box sx={{ textAlign: 'center', mb: 6 }}>
+                  <Typography variant="h3" sx={{
+                    color: '#fff',
+                    mb: 2,
+                    background: 'linear-gradient(45deg, #00bfff, #1e90ff)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                  }}>
+                    探索我们的技术实力
+                  </Typography>
+                  <Typography variant="body1" sx={{ color: '#aaa' }}>
+                    深入了解我们使用的技术栈和开发能力
+                  </Typography>
+                </Box>
+
+                {/* 标签页 */}
+                <Box sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  mb: 4
+                }}>
+                  <Tabs
+                    value={activeTab}
+                    onChange={(e, newValue) => setActiveTab(newValue)}
+                    sx={{
+                      backgroundColor: 'rgba(255,255,255,0.1)',
+                      borderRadius: 2,
+                      backdropFilter: 'blur(10px)',
+                      '& .MuiTab-root': {
+                        color: '#aaa',
+                        '&.Mui-selected': {
+                          color: '#00bfff',
+                        },
+                      },
+                      '& .MuiTabs-indicator': {
+                        backgroundColor: '#00bfff',
+                      },
+                    }}
+                  >
+                    {tabs.map((tab, index) => (
+                      <Tab
+                        key={index}
+                        icon={tab.icon}
+                        label={tab.label}
+                        sx={{
+                          minHeight: 60,
+                          fontSize: '1rem',
+                          fontWeight: 'bold',
+                        }}
+                      />
+                    ))}
+                  </Tabs>
+                </Box>
+
+                {/* 标签页内容 */}
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeTab}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {tabs[activeTab].component}
+                  </motion.div>
+                </AnimatePresence>
+              </Container>
+            </Box>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* 滚动指示器 */}
       <motion.div
@@ -379,6 +375,157 @@ const TechHero = () => {
           <ArrowDownward sx={{ color: '#00bfff', fontSize: 40 }} />
         </motion.div>
       </motion.div>
+    </Box>
+  );
+};
+
+// 浮动技术图标组件
+const FloatingTechIcons = () => {
+  const icons = [
+    { icon: '⚛️', name: 'React', delay: 0 },
+    { icon: '🟦', name: 'TypeScript', delay: 0.5 },
+    { icon: '🚀', name: 'Next.js', delay: 1 },
+    { icon: '🎨', name: 'Material-UI', delay: 1.5 },
+    { icon: '🔧', name: 'Node.js', delay: 2 },
+    { icon: '🗄️', name: 'MongoDB', delay: 2.5 },
+    { icon: '☁️', name: 'AWS', delay: 3 },
+    { icon: '🤖', name: 'AI/ML', delay: 3.5 },
+  ];
+
+  return (
+    <Box sx={{
+      position: 'relative',
+      width: '100%',
+      height: { xs: '300px', sm: '350px', md: '400px' },
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}>
+      {icons.map((tech, index) => (
+        <motion.div
+          key={tech.name}
+          style={{
+            position: 'absolute',
+            fontSize: '2.5rem',
+            left: `${20 + (index % 3) * 30}%`,
+            top: `${20 + Math.floor(index / 3) * 30}%`,
+          }}
+          animate={{
+            y: [0, -18, 0],
+            rotate: [0, 10, -10, 0],
+          }}
+          transition={{
+            duration: 3,
+            delay: tech.delay,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+          whileHover={{ scale: 1.2 }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              cursor: 'pointer',
+            }}
+          >
+            <Typography sx={{
+              fontSize: '2.5rem',
+              mb: 0.5
+            }}>
+              {tech.icon}
+            </Typography>
+            <Typography
+              variant="caption"
+              sx={{
+                color: '#00bfff',
+                fontWeight: 'bold',
+                fontSize: '0.75rem',
+                textShadow: '0 0 10px rgba(0,191,255,0.5)',
+                textAlign: 'center',
+              }}
+            >
+              {tech.name}
+            </Typography>
+          </Box>
+        </motion.div>
+      ))}
+    </Box>
+  );
+};
+
+// 性能指标组件
+const PerformanceMetrics = () => {
+  const metrics = [
+    { name: '页面加载速度', value: 95, unit: '%', color: '#00ff00' },
+    { name: '代码覆盖率', value: 88, unit: '%', color: '#00bfff' },
+    { name: '构建时间', value: 45, unit: 's', color: '#ffaa00' },
+    { name: '错误率', value: 0.1, unit: '%', color: '#ff4444' },
+    { name: '用户体验', value: 92, unit: '%', color: '#00ff88' },
+    { name: 'SEO优化', value: 94, unit: '%', color: '#ff6b6b' },
+  ];
+
+  return (
+    <Box sx={{
+      display: 'grid',
+      gridTemplateColumns: {
+        xs: 'repeat(auto-fit, minmax(200px, 1fr))',
+        md: 'repeat(auto-fit, minmax(250px, 1fr))',
+      },
+      gap: 3,
+    }}>
+      {metrics.map((metric, index) => (
+        <motion.div
+          key={metric.name}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: index * 0.1 }}
+          whileHover={{ scale: 1.05 }}
+        >
+          <Paper
+            sx={{
+              p: 3,
+              textAlign: 'center',
+              background: 'rgba(255,255,255,0.05)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(0,191,255,0.3)',
+              borderRadius: 2,
+            }}
+          >
+            <Typography variant="h6" sx={{ color: '#fff', mb: 2 }}>
+              {metric.name}
+            </Typography>
+            <Typography
+              variant="h3"
+              sx={{
+                color: metric.color,
+                fontWeight: 'bold',
+                mb: 1,
+              }}
+            >
+              {metric.value}{metric.unit}
+            </Typography>
+            <Box sx={{
+              width: '100%',
+              height: 8,
+              backgroundColor: 'rgba(255,255,255,0.1)',
+              borderRadius: 4,
+              overflow: 'hidden',
+            }}>
+              <Box
+                sx={{
+                  width: `${metric.value}%`,
+                  height: '100%',
+                  backgroundColor: metric.color,
+                  borderRadius: 4,
+                  transition: 'width 1s ease',
+                }}
+              />
+            </Box>
+          </Paper>
+        </motion.div>
+      ))}
     </Box>
   );
 };
