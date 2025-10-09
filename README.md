@@ -13,11 +13,14 @@
 - ✅ 联系我们表单
 
 ### 🎛️ 管理后台
+- ✅ JWT 认证和授权
 - ✅ 可视化产品管理界面
 - ✅ 实时CRUD操作
 - ✅ 产品图片管理
 - ✅ 产品特性标签管理
 - ✅ 分类筛选功能
+- ✅ 联系表单消息管理
+- ✅ 安全路由保护
 
 ## 🚀 技术栈
 
@@ -30,6 +33,11 @@
 | **Framer Motion** | 12.x | 动画效果 |
 | **Three.js** | 0.178.x | 3D渲染 |
 | **Axios** | 最新 | HTTP客户端 |
+| **Node.js** | 18.x+ | 后端运行时 |
+| **Express** | 4.x | 后端框架 |
+| **JSON 文件存储** | 自定义 | 数据持久化 |
+| **JWT** | 9.x | 身份认证 |
+| **bcrypt** | 5.x | 密码加密 |
 
 ## 🛠️ 快速开始
 
@@ -50,25 +58,32 @@ npm install
 
 # 或者分别启动：
 # 启动后端API (端口3001)
-cd server && npx json-server --watch db.json --port 3001
+cd server && node index.js
 
 # 启动前端开发服务器 (端口3000)
 npm run dev
 ```
 
 ### 3. 访问应用
-- 🏠 **官网首页**: http://localhost:3000
-- 🎛️ **管理后台**: http://localhost:3000/admin
+- 🏠 **官网首页**: http://localhost:3000 (或自动分配的端口)
+- 🎛️ **管理后台**: http://localhost:3000/admin-access
 - 🔧 **API接口**: http://localhost:3001/products
+- 🔑 **管理员登录**: http://localhost:3000/admin-access
 
 ## 📋 管理后台使用指南
 
+### 管理员登录
+1. 访问 `http://localhost:3000/admin-access`
+2. 使用 `.env` 文件中的管理员凭据登录
+3. 默认凭据：
+   - **用户名**: `admin`
+   - **密码**: `indexoob@2025`
+
 ### 添加新产品
-1. 访问 `http://localhost:3000/admin`
+1. 登录管理后台
 2. 点击右上角 **"添加新产品"** 按钮
 3. 填写产品信息：
    - **产品名称** - 产品标题
-   - **价格** - 产品价格
    - **详细描述** - 产品详细介绍
    - **产品图片URL** - 产品图片链接
    - **产品分类** - 产品所属分类
@@ -97,7 +112,10 @@ indexoob/
 │   │   ├── Navbar.tsx      # 导航栏
 │   │   ├── TechHero.tsx    # 首页英雄区
 │   │   ├── Services.tsx    # 服务介绍
-│   │   └── TechFeatures.tsx # 技术特色
+│   │   ├── TechFeatures.tsx # 技术特色
+│   │   ├── AdminProtectedRoute.tsx # 管理员路由保护
+│   │   └── hero/           # Hero组件子目录
+│   │       └── TechStackMatrix.tsx # 技术栈矩阵
 │   ├── 📁 pages/           # 页面组件
 │   │   ├── Home.tsx        # 首页
 │   │   ├── Products.tsx    # 产品展示
@@ -108,11 +126,18 @@ indexoob/
 │   │   └── api.ts          # 产品API接口
 │   ├── 📁 types/           # 类型定义
 │   │   └── index.ts        # 全局类型
-│   ├── 📁 hooks/           # 自定义Hooks
-│   ├── 📁 utils/           # 工具函数
-│   └── 📁 constants/       # 常量定义
-├── 📁 server/              # 后端模拟数据
-│   └── db.json             # 产品数据库
+│   ├── theme.ts            # Material-UI主题配置
+│   ├── App.tsx             # 应用根组件
+│   └── main.tsx            # 应用入口
+├── 📁 server/              # 后端服务
+│   ├── index.js            # Express服务器主文件
+│   ├── dataStore.js        # JSON文件数据存储层
+│   ├── queryParser.js      # 查询解析中间件
+│   ├── productRoutes.js    # 产品CRUD路由
+│   ├── setup-auth.js       # 认证设置脚本
+│   ├── db.json             # 产品数据库
+│   ├── contact-messages.json # 联系消息数据库
+│   └── package.json        # 后端依赖配置
 ├── vite.config.ts          # Vite配置
 ├── tsconfig.json           # TypeScript配置
 ├── .env.example            # 环境变量模板
@@ -150,24 +175,40 @@ cp .env.example .env
 ```env
 VITE_API_URL=http://localhost:3001
 VITE_APP_TITLE=indexoob
+
+# 服务器配置
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=indexoob@2025
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
 ```
 
 ### 生产环境
 ```env
 VITE_API_URL=https://your-production-api.com
 VITE_APP_TITLE=indexoob - 企业官网
+
+# 服务器配置 (生产环境请修改为强密码)
+ADMIN_USERNAME=your_production_admin
+ADMIN_PASSWORD=your_strong_production_password
+JWT_SECRET=your-super-production-secret-key-with-32-chars
 ```
 
 ## 🎨 主题定制
 
-### 修改主色调
-编辑 `src/index.css` 中的CSS变量：
-```css
-:root {
-  --primary-color: #00bfff;
-  --secondary-color: #1e90ff;
-  --background-gradient: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
-}
+### 修改主题颜色
+编辑 `src/theme.ts` 文件来定制 Material-UI 主题：
+```typescript
+const theme = createTheme({
+  palette: {
+    mode: 'dark',
+    primary: {
+      main: '#00bfff', // 修改主色调
+    },
+    secondary: {
+      main: '#1e90ff', // 修改次要颜色
+    },
+  },
+});
 ```
 
 ### 添加新产品分类
